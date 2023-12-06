@@ -16,5 +16,8 @@ builder.Services.AddTransient<IRequestBuilder, RequestBuilder>();
 builder.Services.AddSingleton<Func<IRequestBuilder>>(provider => () => provider.GetService<IRequestBuilder>()!);
 builder.Services.AddSingleton<IAsyncDnsResolver, AsyncDnsResolver>();
 
+builder.Services.AddMemoryCache();
+builder.Services.Decorate<IAsyncDnsResolver, CachingAsyncDnsResolver>();
+
 var host = builder.Build();
 host.Run();
