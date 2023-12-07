@@ -18,6 +18,7 @@ builder.Services.AddSingleton<IAsyncDnsResolver, AsyncDnsResolver>();
 
 builder.Services.AddMemoryCache();
 builder.Services.Decorate<IAsyncDnsResolver, CachingAsyncDnsResolver>();
+builder.Services.Decorate<IAsyncDnsResolver, TimingAsyncDnsResolver>();
 
 var host = builder.Build();
 host.Run();

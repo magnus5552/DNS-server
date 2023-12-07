@@ -30,8 +30,7 @@ public class AsyncDnsResolver : IAsyncDnsResolver
     public async Task<IEnumerable<IPAddressResourceRecord>> ResolveAsync(string hostName)
     {
         logger.LogInformation($"Resolving hostname: {hostName}");
-        var uri = new Uri(hostName);
-        var domain = Domain.FromString(uri.DnsSafeHost);
+        var domain = ParseDomain(hostName);
 
         var endpointAddresses = new HashSet<IPAddress> { IPAddress.Parse(dnsOptions.RootServerAddress) };
         var resolvedIPs = new HashSet<IPAddressResourceRecord>();
@@ -61,6 +60,12 @@ public class AsyncDnsResolver : IAsyncDnsResolver
 
         return resolvedIPs.DistinctBy(x => x.IPAddress);
     }
+
+    private Domain ParseDomain(string hostName)
+    {
+        var uri = new Uri(hostName);
+        return new Domain(uri.DnsSafeHost);
+    }
     
     private async Task<Response> GetRecord(Domain domain, IPAddress endpointAddress, RecordType recordType)
     {
@@ -79,5 +84,4 @@ public class AsyncDnsResolver : IAsyncDnsResolver
         var result = await udpClient.ReceiveAsync(); 
         return responseParser.Parse(result.Buffer);
     }
-
 }
