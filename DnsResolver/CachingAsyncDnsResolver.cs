@@ -15,14 +15,17 @@ public class CachingAsyncDnsResolver : IAsyncDnsResolver
         this.memoryCache = memoryCache;
     }
     
-    public Task<IEnumerable<IPAddressResourceRecord>> ResolveAsync(string hostName)
+    public Task<IEnumerable<IPAddressResourceRecord>> ResolveAsync(string hostName) 
+        => memoryCache.GetOrCreateAsync(hostName, async entry => await GetItem(entry, hostName))!;
+
+    private async Task<IEnumerable<IPAddressResourceRecord>> GetItem(ICacheEntry entry, string hostName)
     {
-        return memoryCache.GetOrCreateAsync(hostName, async entry =>
-                                                      {
-                                                          var addresses = await resolver.ResolveAsync(hostName);
-                                                          entry.AbsoluteExpirationRelativeToNow =
-                                                              addresses.Min(x => x.TimeToLive);
-                                                          return addresses;
-                                                      });
+        var addresses = (await resolver.ResolveAsync(hostName)).ToArray();
+        if (addresses.Length != 0)
+            entry.AbsoluteExpirationRelativeToNow = addresses.Min(x => x.TimeToLive);
+        else
+            entry.Dispose();
+        
+        return addresses;
     }
 }

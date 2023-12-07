@@ -1,9 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
-using DNS.Client;
 using DNS.Protocol;
-using DNS.Protocol.ResourceRecords;
-using DNS.Server;
 using Microsoft.Extensions.Options;
 
 namespace DNS_server;
